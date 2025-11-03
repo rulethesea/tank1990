@@ -25,7 +25,7 @@ const defaultConfig: Phaser.Types.Core.GameConfig = {
     ]
   },
   scale: {
-    mode: Phaser.Scale.FIT,
+    mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   render: { pixelArt: true, antialias: false },

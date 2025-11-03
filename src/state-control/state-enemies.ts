@@ -47,8 +47,10 @@ export class StateControlEnemies {
 
     // align to grid on direction change
     if (stateControlEnemy.currentDirection !== stateControlEnemy.previousDirection) {
-      const newPosX = Phaser.Math.Snap.To(enemy.x, 24);
-      const newPosY = Phaser.Math.Snap.To(enemy.y, 24);
+      // const newPosX = Phaser.Math.Snap.To(enemy.x, 24);
+      // const newPosY = Phaser.Math.Snap.To(enemy.y, 24);
+      const newPosX = Phaser.Math.Snap.To(enemy.x, 12);
+      const newPosY = Phaser.Math.Snap.To(enemy.y, 12);
       enemy.setPosition(newPosX, newPosY);
     }
   }

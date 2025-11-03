@@ -85,6 +85,7 @@ export class StageScene extends Phaser.Scene {
     this.load.image("up", "assets/images/pad/up.png");
     this.load.image("down", "assets/images/pad/down.png");
     this.load.image("shooting", "assets/images/sprites/shooting.png");
+    this.load.image("btnRight", "assets/images/sprites/right.png");
 
     this.load.spritesheet("game-bullet", "assets/images/sprites/bullet.png", { frameWidth: 12, frameHeight: 12 });
     this.load.spritesheet("game-bullet-explosion", "assets/images/sprites/bullet-explosion.png", { frameWidth: 48, frameHeight: 48 });
@@ -124,6 +125,17 @@ export class StageScene extends Phaser.Scene {
 
     this.background = this.add.image(640, 360, "game-background");
     this.background.setOrigin(0.5, 0.5);
+
+    let btnRight = this.add.image(900, 450, "btnRight").setInteractive();
+    let btnShooting = this.add.image(900, 450, "shooting");
+    btnRight.on('pointerdown', () => {
+      btnShooting.scale = 1.1;
+      this.cursors.space.reset();
+      this.createBulletForPlayerOne();
+    });
+    btnRight.on('pointerup', () => {
+      btnShooting.scale = 1.0;
+    });
 
     const map = this.make.tilemap({ key: this.filesBaseKey + "-tilemap" });
     const tileSet = map.addTilesetImage("game-tileset", "game-tileset");
@@ -169,12 +181,12 @@ export class StageScene extends Phaser.Scene {
 
     this.joyStick = new VirtualJoystick(this, {
       x: 120,
-      y: 550,
+      y: 450,
       radius: 80,
       base: this.add.circle(0, 0, 80, 0x888888),
       thumb: this.add.circle(0, 0, 40, 0xcccccc),
       dir: '4dir',   // 'up&down'|0|'left&right'|1|'4dir'|2|'8dir'|3
-      forceMin: 20,
+      forceMin: 15,
       // enable: true
     }).on('update', this.dumpJoyStickState, this);
 
@@ -182,15 +194,7 @@ export class StageScene extends Phaser.Scene {
     // let btnUp = this.add.image(-100, 500, "up").setInteractive();
     // let btnLeft = this.add.image(-150, 550, "left").setInteractive();
     // let btnRight = this.add.image(- 50, 550, "right").setInteractive();
-    let btnShooting = this.add.image(900, 550, "shooting").setInteractive();
-    btnShooting.on('pointerdown', () => {
-      btnShooting.scale = 1.1;
-      this.cursors.space.reset();
-      this.createBulletForPlayerOne();
-    });
-    btnShooting.on('pointerup', () => {
-      btnShooting.scale = 1.0;
-    });
+    
 
     // btnDown.on('pointerdown', () => {
     //   this.directionPlayer1 = Phaser.DOWN;

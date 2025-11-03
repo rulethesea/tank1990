@@ -53,11 +53,13 @@ export class StateControlPlayer {
     }
 
     // align to grid on direction change
-    // if (this.currentDirection !== this.previousDirection) {
-    //   const newPosX = Phaser.Math.Snap.To(player.x, 24);
-    //   const newPosY = Phaser.Math.Snap.To(player.y, 24);
-    //   player.setPosition(newPosX, newPosY);
-    // }
+    if (this.currentDirection !== this.previousDirection) {
+      // const newPosX = Phaser.Math.Snap.To(player.x, 24);
+      // const newPosY = Phaser.Math.Snap.To(player.y, 24);
+      const newPosX = Phaser.Math.Snap.To(player.x, 12);
+      const newPosY = Phaser.Math.Snap.To(player.y, 12);
+      player.setPosition(newPosX, newPosY);
+    }
   }
 
   public static resetDirection() {
