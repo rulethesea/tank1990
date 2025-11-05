@@ -28,14 +28,14 @@ export class WelcomeScene extends Phaser.Scene {
 
   public create() {
     this.sound.play("welcome-music", { loop: false, volume: 0.5 });
-    this.background = this.add.image(640, 0, "welcome-background").setOrigin(0.5, 0);
+    this.background = this.add.image(360, 0, "welcome-background").setOrigin(0.5, 0);
     this.cursors = this.input.keyboard!.createCursorKeys();
 
-    this.textStart = this.add.bitmapText(640, 432, "console-font", "PLEASE INSERT COIN", 24).setOrigin(0.5, 0.5);
+    this.textStart = this.add.bitmapText(360, 700, "console-font", "PLEASE INSERT COIN", 24).setOrigin(0.5, 0.5);
     this.textStart.setTint(0xEEEEEE);
 
-    this.cameras.main.setScroll(0, -720);
-    this.cameras.main.pan(640, 360, 2000, "Linear", false);
+    this.cameras.main.setScroll(0, -1280);
+    this.cameras.main.pan(360, 640, 2000, "Linear", false);
 
     this.time.addEvent({
       callback: this.blinkBackground,
