@@ -21,6 +21,11 @@ import VirtualJoystick from 'phaser3-rex-plugins/plugins/virtualjoystick.js';
 export class StageScene extends Phaser.Scene {
 
   private cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+  // Touch joystick state
+  private leftTouchId?: number;
+  private rightTouchId?: number;
+  private leftStartPos?: Phaser.Math.Vector2;
+  private leftCurrentPos?: Phaser.Math.Vector2;
 
   private background: Phaser.GameObjects.Image;
   private logoEnemiesCount: Phaser.GameObjects.Group;
@@ -82,10 +87,6 @@ export class StageScene extends Phaser.Scene {
     this.load.json(this.filesBaseKey + "-script", this.filesBaseUrl + "-script.json");
     this.load.image("game-tileset", "assets/images/tiles/game-tileset.png");
 
-    this.load.image("left", "assets/images/pad/left.png");
-    this.load.image("right", "assets/images/pad/right.png");
-    this.load.image("up", "assets/images/pad/up.png");
-    this.load.image("down", "assets/images/pad/down.png");
     this.load.image("shooting", "assets/images/sprites/shooting.png");
     this.load.image("btnRight", "assets/images/sprites/right.png");
 
@@ -126,19 +127,52 @@ export class StageScene extends Phaser.Scene {
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.resetCursorKeys();
 
+    this.input.addPointer(2);
+    // Invisible joystick: left side for movement, right side for shooting
+    this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+      if (pointer.x < this.cameras.main.width / 2) {
+        // Left side: movement
+        this.leftTouchId = pointer.id;
+        this.leftStartPos = new Phaser.Math.Vector2(pointer.x, pointer.y);
+        this.leftCurrentPos = this.leftStartPos.clone();
+      } else {
+        // Right side: shooting
+        this.rightTouchId = pointer.id;
+        this.handleTouchShoot();
+      }
+    });
+
+    this.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
+      if (pointer.id === this.leftTouchId && this.leftStartPos) {
+        this.leftCurrentPos = new Phaser.Math.Vector2(pointer.x, pointer.y);
+      }
+    });
+
+    this.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+      if (pointer.id === this.leftTouchId) {
+        this.leftTouchId = undefined;
+        this.leftStartPos = undefined;
+        this.leftCurrentPos = undefined;
+        this.directionPlayer1 = -1;
+      }
+      if (pointer.id === this.rightTouchId) {
+        this.rightTouchId = undefined;
+      }
+    });
+
     this.background = this.add.image(640, 360, "game-background");
     this.background.setOrigin(0.5, 0.5);
 
-    let btnRight = this.add.image(900, 450, "btnRight").setInteractive();
-    let btnShooting = this.add.image(900, 450, "shooting");
-    btnRight.on('pointerdown', () => {
-      btnShooting.scale = 1.1;
-      this.cursors.space.reset();
-      this.createBulletForPlayerOne();
-    });
-    btnRight.on('pointerup', () => {
-      btnShooting.scale = 1.0;
-    });
+    // let btnRight = this.add.image(900, 450, "btnRight").setInteractive();
+    // let btnShooting = this.add.image(900, 450, "shooting");
+    // btnRight.on('pointerdown', () => {
+    //   btnShooting.scale = 1.1;
+    //   this.cursors.space.reset();
+    //   this.createBulletForPlayerOne();
+    // });
+    // btnRight.on('pointerup', () => {
+    //   btnShooting.scale = 1.0;
+    // });
 
     const map = this.make.tilemap({ key: this.filesBaseKey + "-tilemap" });
     const tileSet = map.addTilesetImage("game-tileset", "game-tileset");
@@ -182,16 +216,16 @@ export class StageScene extends Phaser.Scene {
     // this.player2.setImmovable(false);
     // this.player2.setPushable(false);
 
-    this.joyStick = new VirtualJoystick(this, {
-      x: 120,
-      y: 450,
-      radius: 80,
-      base: this.add.circle(0, 0, 80, 0x888888),
-      thumb: this.add.circle(0, 0, 40, 0xcccccc),
-      dir: '4dir',   // 'up&down'|0|'left&right'|1|'4dir'|2|'8dir'|3
-      forceMin: 15,
-      // enable: true
-    }).on('update', this.dumpJoyStickState, this);
+    // this.joyStick = new VirtualJoystick(this, {
+    //   x: 120,
+    //   y: 450,
+    //   radius: 80,
+    //   base: this.add.circle(0, 0, 80, 0x888888),
+    //   thumb: this.add.circle(0, 0, 40, 0xcccccc),
+    //   dir: '4dir',   // 'up&down'|0|'left&right'|1|'4dir'|2|'8dir'|3
+    //   forceMin: 15,
+    //   // enable: true
+    // }).on('update', this.dumpJoyStickState, this);
 
     // let btnDown = this.add.image(-100, 600, "down").setInteractive();
     // let btnUp = this.add.image(-100, 500, "up").setInteractive();
@@ -254,25 +288,52 @@ export class StageScene extends Phaser.Scene {
     ScriptManager.parse(this, this.enemies, dataJSON, this.enemyCreated, this.logoEnemiesCount);
   }
 
-  dumpJoyStickState() {
-    var cursorKeys = this.joyStick.createCursorKeys();
-
-    if (cursorKeys['up'].isDown) {
-      this.directionPlayer1 = Phaser.UP;
-    } else if (cursorKeys['down'].isDown) {
-      this.directionPlayer1 = Phaser.DOWN;
-    } else if (cursorKeys['left'].isDown) {
-      this.directionPlayer1 = Phaser.LEFT;
-    } else if (cursorKeys['right'].isDown) {
-      this.directionPlayer1 = Phaser.RIGHT;
-    } else {
-      this.directionPlayer1 = -1;
-    }
+  // Handle shooting when right side is touched
+  private handleTouchShoot() {
+    this.createBulletForPlayerOne();
   }
+
+  // dumpJoyStickState() {
+  //   var cursorKeys = this.joyStick.createCursorKeys();
+
+  //   if (cursorKeys['up'].isDown) {
+  //     this.directionPlayer1 = Phaser.UP;
+  //   } else if (cursorKeys['down'].isDown) {
+  //     this.directionPlayer1 = Phaser.DOWN;
+  //   } else if (cursorKeys['left'].isDown) {
+  //     this.directionPlayer1 = Phaser.LEFT;
+  //   } else if (cursorKeys['right'].isDown) {
+  //     this.directionPlayer1 = Phaser.RIGHT;
+  //   } else {
+  //     this.directionPlayer1 = -1;
+  //   }
+  // }
 
   public update(time: number): void {
 
     if (this.player1.body === undefined) { return; }
+
+    // Touch joystick movement (left side)
+    if (this.leftStartPos && this.leftCurrentPos) {
+      const dx = this.leftCurrentPos.x - this.leftStartPos.x;
+      const dy = this.leftCurrentPos.y - this.leftStartPos.y;
+      const threshold = 10; // Minimum drag distance
+      if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
+        // Normalize direction
+        const angle = Math.atan2(dy, dx);
+        const speed = 100;
+        this.player1.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+
+        // Optionally set directionPlayer1 for shooting direction
+        if (Math.abs(dx) > Math.abs(dy)) {
+          this.directionPlayer1 = dx > 0 ? Phaser.RIGHT : Phaser.LEFT;
+        } else {
+          this.directionPlayer1 = dy > 0 ? Phaser.DOWN : Phaser.UP;
+        }
+      } else {
+        this.player1.setVelocity(0, 0);
+      }
+    }
 
     if (this.directionPlayer1 > 0) {
       StateControlPlayer.processMovementKey(this.player1, this.directionPlayer1);
@@ -285,6 +346,7 @@ export class StageScene extends Phaser.Scene {
       this.createBulletForPlayerOne();
     }
 
+    // Restore enemy update loop and stage logic inside update()
     this.enemies.getChildren().forEach((element) => {
       const enemy = element as Phaser.Physics.Arcade.Sprite;
       enemy.setData("shooting", false);
