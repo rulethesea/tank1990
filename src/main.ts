@@ -8,7 +8,7 @@ import Phaser from "phaser";
 
 const defaultConfig: Phaser.Types.Core.GameConfig = {
   backgroundColor: "000000",
-  parent: "game",
+  parent: "game-container",
   physics: {
     arcade: {
       debug: false,
@@ -26,14 +26,14 @@ const defaultConfig: Phaser.Types.Core.GameConfig = {
   },
   scale: {
     mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
+    autoCenter: Phaser.Scale.NO_CENTER,
   },
   render: { pixelArt: true, antialias: false },
   scene: [WelcomeScene, GameOverScene, ScoresScene, StageScene, StageNumberScene],
   title: "Mini Battle City",
   type: Phaser.AUTO,
-  height: 720,
-  width: 1280,
+  height: 1280,
+  width: 720,
 };
 const StartGame = (parent: string) => {
 

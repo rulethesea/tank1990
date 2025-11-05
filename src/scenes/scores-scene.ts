@@ -41,42 +41,42 @@ export class ScoresScene extends Phaser.Scene {
 
     this.background = this.add.image(0, 0, "scores-background").setOrigin(0, 0);
 
-    this.textStageNumber = this.add.bitmapText(292 , 119, "console-font", "STAGE  " + this.gameProgress.stageNumber, 24);
+    this.textStageNumber = this.add.bitmapText(220 , 300, "console-font", "STAGE  " + this.gameProgress.stageNumber, 24);
     this.textStageNumber.setTint(0xEEEEEE);
 
     const msgPlayerOnePoints = this.buildPlayerPoints(this.gameProgress.playerOneTotalPoints);
-    this.textPlayerOnePoints = this.add.bitmapText(124 , 215, "console-font", msgPlayerOnePoints, 24);
+    this.textPlayerOnePoints = this.add.bitmapText(180 , 400, "console-font", msgPlayerOnePoints, 24);
     this.textPlayerOnePoints.setTint(0xFFB600);
 
-    this.textPlayerOneRegulars = this.add.bitmapText(76, 287, "console-font", defaultTankMessage, 24);
+    this.textPlayerOneRegulars = this.add.bitmapText(140, 480, "console-font", defaultTankMessage, 24);
     this.textPlayerOneRegulars.setTint(0xEEEEEE);
     this.time.delayedCall(500, () => {
       const messagePlayerOneRegulars = this.buildTanksMessage(this.gameProgress.playerOneRegularsCount, this.gameProgress.playerOneRegularsPoints);
       this.textPlayerOneRegulars.setText(messagePlayerOneRegulars);
     });
 
-    this.textPlayerOneSpeedies = this.add.bitmapText(76, 359, "console-font", defaultTankMessage, 24);
+    this.textPlayerOneSpeedies = this.add.bitmapText(140, 560, "console-font", defaultTankMessage, 24);
     this.textPlayerOneSpeedies.setTint(0xEEEEEE);
     this.time.delayedCall(1000, () => {
       const msgPlayerOneSpeedies = this.buildTanksMessage(this.gameProgress.playerOneSpeediesCount, this.gameProgress.playerOneSpeediesPoints);
       this.textPlayerOneSpeedies.setText(msgPlayerOneSpeedies);
     });
 
-    this.textPlayerOneShooters = this.add.bitmapText(76, 431, "console-font", defaultTankMessage, 24);
+    this.textPlayerOneShooters = this.add.bitmapText(140, 640, "console-font", defaultTankMessage, 24);
     this.textPlayerOneShooters.setTint(0xEEEEEE);
     this.time.delayedCall(1500, () => {
       const msgPlayerOneShooters = this.buildTanksMessage(this.gameProgress.playerOneShootersCount, this.gameProgress.playerOneShootersPoints);
       this.textPlayerOneShooters.setText(msgPlayerOneShooters);
     });
 
-    this.textPlayerOneHeavies = this.add.bitmapText(76, 503, "console-font", defaultTankMessage, 24);
+    this.textPlayerOneHeavies = this.add.bitmapText(140, 720, "console-font", defaultTankMessage, 24);
     this.textPlayerOneHeavies.setTint(0xEEEEEE);
     this.time.delayedCall(2000, () => {
       const msgPlayerOneHeavies = this.buildTanksMessage(this.gameProgress.playerOneHeaviesCount, this.gameProgress.playerOneHeaviesPoints);
       this.textPlayerOneHeavies.setText(msgPlayerOneHeavies);
     });
 
-    this.textPlayerOneTotal = this.add.bitmapText(76, 576, "console-font", defaultTotalMessage, 24);
+    this.textPlayerOneTotal = this.add.bitmapText(140, 800, "console-font", defaultTotalMessage, 24);
     this.textPlayerOneTotal.setTint(0xEEEEEE);
     this.time.delayedCall(2500, () => {
       const msgPlayerOneTotal = this.buildTotalMessage(this.gameProgress.playerOneStageCount);

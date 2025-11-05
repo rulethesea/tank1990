@@ -118,7 +118,8 @@ export class StageScene extends Phaser.Scene {
     // var url = 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js';
     // this.load.plugin('rexvirtualjoystickplugin', url, true);
 
-    this.cameras.main.setScroll(-250, 0);
+    // Center camera for portrait mode - tilemap is 768px, canvas is 720px
+    this.cameras.main.setScroll(-24, 0);
   }
 
   public create(): void {
@@ -126,11 +127,11 @@ export class StageScene extends Phaser.Scene {
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.resetCursorKeys();
 
-    this.background = this.add.image(640, 360, "game-background");
+    this.background = this.add.image(360, 420, "game-background");
     this.background.setOrigin(0.5, 0.5);
 
-    let btnRight = this.add.image(900, 450, "btnRight").setInteractive();
-    let btnShooting = this.add.image(900, 450, "shooting");
+    let btnRight = this.add.image(570, 1100, "btnRight").setInteractive();
+    let btnShooting = this.add.image(570, 1100, "shooting");
     btnRight.on('pointerdown', () => {
       btnShooting.scale = 1.1;
       this.cursors.space.reset();
@@ -147,33 +148,35 @@ export class StageScene extends Phaser.Scene {
       throw new Error("Failed to load game-tileset");
     }
 
-    this.frameLayer = map.createLayer("frame-layer", tileSet, 0, 0)!;
-    this.frameLayer.setCollisionBetween(1, 9999, true, true);
-    this.gameLayer = map.createLayer("game-layer", tileSet, 0, 0)!;
-    this.gameLayer.setCollisionBetween(1, 9999, true, true);
-    this.rockLayer = map.createLayer("rock-layer", tileSet, 0, 0)!;
-    this.rockLayer.setCollisionBetween(1, 9999, true, true);
-    this.waterLayer = map.createLayer("water-layer", tileSet, 0, 0)!;
-    this.waterLayer.setCollisionBetween(1, 9999, true, true);
-    const aboveLayer = (map.createLayer("above-layer", tileSet, 0, 0)!).setDepth(2);
+  // Center the tilemap horizontally (set offset to 0 for now)
+  const offsetX = 0;
+  this.frameLayer = map.createLayer("frame-layer", tileSet, offsetX, 0)!;
+  this.frameLayer.setCollisionBetween(1, 9999, true, true);
+  this.gameLayer = map.createLayer("game-layer", tileSet, offsetX, 0)!;
+  this.gameLayer.setCollisionBetween(1, 9999, true, true);
+  this.rockLayer = map.createLayer("rock-layer", tileSet, offsetX, 0)!;
+  this.rockLayer.setCollisionBetween(1, 9999, true, true);
+  this.waterLayer = map.createLayer("water-layer", tileSet, offsetX, 0)!;
+  this.waterLayer.setCollisionBetween(1, 9999, true, true);
+  const aboveLayer = (map.createLayer("above-layer", tileSet, offsetX, 0)!).setDepth(2);
 
-    this.bulletsEnemies = this.physics.add.group();
-    this.bulletsPlayer1 = this.physics.add.group();
-    // this.bulletsPlayer2 = this.physics.add.group();
-    this.enemies = this.physics.add.group();
+  this.bulletsEnemies = this.physics.add.group();
+  this.bulletsPlayer1 = this.physics.add.group();
+  // this.bulletsPlayer2 = this.physics.add.group();
+  this.enemies = this.physics.add.group();
 
-    this.fortress = this.physics.add.sprite(360, 648, "game-fortress");
-    this.fortress.refreshBody();
-    this.fortress.setBounce(0, 0);
-    this.fortress.setCollideWorldBounds(true);
-    this.fortress.setImmovable(true);
+  this.fortress = this.physics.add.sprite(360 + offsetX, 648, "game-fortress");
+  this.fortress.refreshBody();
+  this.fortress.setBounce(0, 0);
+  this.fortress.setCollideWorldBounds(true);
+  this.fortress.setImmovable(true);
 
-    this.player1 = this.physics.add.sprite(264, 648, "game-player-one");
-    this.player1.setData("name", "player-one");
-    this.player1.setBounce(0, 0);
-    this.player1.setCollideWorldBounds(true);
-    this.player1.setImmovable(false);
-    this.player1.setPushable(false);
+  this.player1 = this.physics.add.sprite(264 + offsetX, 648, "game-player-one");
+  this.player1.setData("name", "player-one");
+  this.player1.setBounce(0, 0);
+  this.player1.setCollideWorldBounds(true);
+  this.player1.setImmovable(false);
+  this.player1.setPushable(false);
 
     // this.player2 = this.physics.add.sprite(456, 648, "game-player-two");
     // this.player2.setData("name", "player-two");
@@ -183,8 +186,8 @@ export class StageScene extends Phaser.Scene {
     // this.player2.setPushable(false);
 
     this.joyStick = new VirtualJoystick(this, {
-      x: 120,
-      y: 450,
+      x: 150,
+      y: 1100,
       radius: 80,
       base: this.add.circle(0, 0, 80, 0x888888),
       thumb: this.add.circle(0, 0, 40, 0xcccccc),
@@ -226,14 +229,17 @@ export class StageScene extends Phaser.Scene {
     //   this.directionPlayer1 = -1;
     // });
 
-    this.logoGameOver = this.add.image(360, 744, "game-game-over").setDepth(3);
-    this.logoLevelCount = this.add.image(720, 576, "game-level-count");
-    this.textLevelCount = this.add.bitmapText(720, 600, "console-font", this.gameProgress.stageNumber.toString(), 24);
+    // Create GAME OVER logo but hide it initially
+    this.logoGameOver = this.add.image(360, 640, "game-game-over").setDepth(3);
+    this.logoGameOver.setVisible(false);
+    
+    this.logoLevelCount = this.add.image(360, 60, "game-level-count");
+    this.textLevelCount = this.add.bitmapText(360, 84, "console-font", this.gameProgress.stageNumber.toString(), 24);
     this.textLevelCount.setTint(0x111111);
-    this.logoLivesCount1 = this.add.image(708, 444, "game-lives-count");
-    this.textLivesCount1A = this.add.bitmapText(696, 408, "console-font", "IP", 24);
+    this.logoLivesCount1 = this.add.image(120, 60, "game-lives-count");
+    this.textLivesCount1A = this.add.bitmapText(108, 24, "console-font", "IP", 24);
     this.textLivesCount1A.setTint(0x111111);
-    this.textLivesCount1B = this.add.bitmapText(724, 432, "console-font", this.gameProgress.playerOneLives.toString(), 24);
+    this.textLivesCount1B = this.add.bitmapText(136, 48, "console-font", this.gameProgress.playerOneLives.toString(), 24);
     this.textLivesCount1B.setTint(0x111111);
     // this.logoLivesCount2 = this.add.image(708, 516, "game-lives-count");
     // this.textLivesCount2A = this.add.bitmapText(696, 480, "console-font", "#P", 24);
@@ -243,7 +249,7 @@ export class StageScene extends Phaser.Scene {
     this.logoEnemiesCount = this.add.group();
     for (let i = 0; i < 10; i++) {
       for (let j = 0; j < 2; j++) {
-        this.logoEnemiesCount.create(708 + (j * 24), 84 + (i * 24), "game-enemies-count");
+        this.logoEnemiesCount.create(600 + (j * 24), 24 + (i * 24), "game-enemies-count");
       }
     }
 
@@ -570,6 +576,7 @@ export class StageScene extends Phaser.Scene {
     this.bulletsEnemies.remove(dst, true, true);
 
     this.gameOver = true;
+    this.logoGameOver.setVisible(true);
   }
 
   private collitionDestroyGameLayer(src: Phaser.Physics.Arcade.Sprite, dst: Phaser.Physics.Arcade.Sprite): void {
@@ -637,6 +644,7 @@ export class StageScene extends Phaser.Scene {
 
     } else {
       this.gameOver = true;
+      this.logoGameOver.setVisible(true);
       this.player1.setVisible(false);
     }
   }
