@@ -62,6 +62,10 @@ export class StageScene extends Phaser.Scene {
   private sceneEnding: boolean;
   private joyStick: VirtualJoystick;
 
+  private textControls: Phaser.GameObjects.BitmapText;
+  private touchGuideLeft: Phaser.GameObjects.Container;
+  private touchGuideRight: Phaser.GameObjects.Container;
+
   constructor() {
     super({ key: "StageScene" });
   }
@@ -119,7 +123,8 @@ export class StageScene extends Phaser.Scene {
     // var url = 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexvirtualjoystickplugin.min.js';
     // this.load.plugin('rexvirtualjoystickplugin', url, true);
 
-    this.cameras.main.setScroll(-250, 0);
+    let delta = (this.game.scale.width - 1280) / -2;
+    this.cameras.main.setScroll(-250 + delta, 0);
   }
 
   public create(): void {
@@ -208,6 +213,60 @@ export class StageScene extends Phaser.Scene {
     this.player1.setCollideWorldBounds(true);
     this.player1.setImmovable(false);
     this.player1.setPushable(false);
+    this.player1.setBodySize(44, 44);
+
+    if (this.gameProgress.stageNumber == 1) {
+      // Add touch control guides
+      const isTouchDevice = this.sys.game.device.input.touch;
+      if (isTouchDevice) {
+        // Left guide (movement)
+        this.touchGuideLeft = this.add.container(-200, this.game.scale.height - 170);
+        const leftCircle = this.add.circle(0, 0, 40, 0x333333, 0.3);
+        const leftText = this.add.bitmapText(0, -60, "console-font", "MOVE", 16).setOrigin(0.5);
+        this.touchGuideLeft.add([leftCircle, leftText]);
+
+        // Right guide (shoot)
+        this.touchGuideRight = this.add.container(this.game.scale.width - 570, this.game.scale.height - 170);
+        const rightCircle = this.add.circle(0, 0, 30, 0x333333, 0.3);
+        const rightText = this.add.bitmapText(0, -60, "console-font", "SHOOT", 16).setOrigin(0.5);
+        this.touchGuideRight.add([rightCircle, rightText]);
+
+        // Add arrows to left joystick guide
+        const arrowScale = 0.8;
+        [-1, 1].forEach(x => {
+          const hArrow = this.add.triangle(x * 50, 0, 0, -10, 20 * Math.sign(x), 0, 0, 10, 0x333333, 0.3)
+            .setScale(arrowScale);
+          this.touchGuideLeft.add(hArrow);
+        });
+        [-1, 1].forEach(y => {
+          const vArrow = this.add.triangle(0, y * 50, -10, 0, 0, 20 * Math.sign(y), 10, 0, 0x333333, 0.3)
+            .setScale(arrowScale);
+          this.touchGuideLeft.add(vArrow);
+        });
+      }
+
+      // Add control instructions
+      // let controlsText = "CONTROLS:\n";
+      // controlsText += isTouchDevice ?
+      //   "LEFT SIDE - MOVE TANK\nRIGHT SIDE - SHOOT" :
+      //   "ARROW KEYS - MOVE TANK\nSPACE - SHOOT";
+
+      // this.textControls = this.add.bitmapText(
+      //   this.game.scale.width / 2 - 350,
+      //   this.game.scale.height - 150,
+      //   "console-font",
+      //   controlsText,
+      //   16
+      // ).setOrigin(0.5);
+      // this.textControls.setTint(0xCCCCCC);
+
+      this.time.delayedCall(5000, () => {
+        // this.textControls.setVisible(false);
+        this.touchGuideLeft.setVisible(false);
+        this.touchGuideRight.setVisible(false);
+
+      });
+    }
 
     // this.player2 = this.physics.add.sprite(456, 648, "game-player-two");
     // this.player2.setData("name", "player-two");

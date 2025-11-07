@@ -28,14 +28,14 @@ export class WelcomeScene extends Phaser.Scene {
 
   public create() {
     this.sound.play("welcome-music", { loop: false, volume: 0.5 });
-    this.background = this.add.image(640, 0, "welcome-background").setOrigin(0.5, 0);
+    this.background = this.add.image(this.game.scale.width / 2, 0, "welcome-background").setOrigin(0.5, 0);
     this.cursors = this.input.keyboard!.createCursorKeys();
 
-    this.textStart = this.add.bitmapText(640, 432, "console-font", "PLEASE INSERT COIN", 24).setOrigin(0.5, 0.5);
+    this.textStart = this.add.bitmapText(this.game.scale.width / 2, 500, "console-font", "RULE THE SEA", 24).setOrigin(0.5, 0.5);
     this.textStart.setTint(0xEEEEEE);
 
     this.cameras.main.setScroll(0, -720);
-    this.cameras.main.pan(640, 360, 2000, "Linear", false);
+    this.cameras.main.pan(this.game.scale.width / 2, 360, 2000, "Linear", false);
 
     this.time.addEvent({
       callback: this.blinkBackground,
@@ -44,9 +44,21 @@ export class WelcomeScene extends Phaser.Scene {
       loop: true,
     });
 
+    // this.scale.orientation = Phaser.Scale.Orientation.LANDSCAPE;
     this.input.once('pointerdown', () => {
+      this.scale.startFullscreen();
       this.nextScene();
     });
+
+    this.game.scale.on("orientationchange", function (orientation: any) {
+      if (orientation === Phaser.Scale.PORTRAIT) {
+        console.log("portrait");
+        orientation = Phaser.Scale.LANDSCAPE;
+      } else if (orientation === Phaser.Scale.LANDSCAPE) {
+        console.log("landscape");
+      }
+    });
+
   }
 
   public nextScene() {

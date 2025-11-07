@@ -34,7 +34,7 @@ const defaultConfig: Phaser.Types.Core.GameConfig = {
   title: "Mini Battle City",
   type: Phaser.AUTO,
   height: 720,
-  width: 1280,
+  width: 1556,
 };
 const StartGame = (parent: string) => {
 
@@ -44,6 +44,52 @@ const StartGame = (parent: string) => {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  StartGame('game-container');
+  const game = StartGame('game-container');
+
+  // Try to lock orientation where possible (may require fullscreen/user gesture).
+  const tryLockOrientation = async () => {
+    const screenApi: any = (window as any).screen || (window as any).screen?.orientation;
+    const orientation = (screenApi && screenApi.orientation) ? screenApi.orientation : screenApi;
+    if (orientation && typeof orientation.lock === 'function') {
+      try {
+        // best-effort; will fail silently if not allowed
+        await orientation.lock('landscape');
+      } catch (e) {
+        // ignore lock failure
+      }
+    }
+  };
+
+  const updateOrientationOverlay = () => {
+    const overlay = document.getElementById('rotate-overlay');
+    if (!overlay) return;
+    const isPortrait = window.innerHeight > window.innerWidth;
+    overlay.style.display = isPortrait ? 'flex' : 'none';
+
+    // Best-effort pause/resume of scenes so game logic doesn't run while portrait.
+    try {
+      const scenePlugin: any = game.scene;
+      // Pause active scenes when portrait, resume when landscape.
+      if (isPortrait) {
+        const activeScenes = scenePlugin.getScenes(true) || [];
+        activeScenes.forEach((s: any) => {
+          try { scenePlugin.pause(s); } catch (_) { }
+        });
+      } else {
+        const pausedScenes = scenePlugin.getScenes(false) || [];
+        pausedScenes.forEach((s: any) => {
+          try { scenePlugin.resume(s); } catch (_) { }
+        });
+      }
+    } catch (e) {
+      // Non-fatal; continue
+    }
+  };
+
+  // Initial check and event wiring
+  updateOrientationOverlay();
+  tryLockOrientation();
+  window.addEventListener('resize', updateOrientationOverlay);
+  window.addEventListener('orientationchange', () => { updateOrientationOverlay(); tryLockOrientation(); });
 
 });
