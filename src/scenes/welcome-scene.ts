@@ -47,15 +47,17 @@ export class WelcomeScene extends Phaser.Scene {
     // this.scale.orientation = Phaser.Scale.Orientation.LANDSCAPE;
     this.input.once('pointerdown', () => {
       this.scale.startFullscreen();
+      // screen.orientation.lock('landscape')
       this.nextScene();
     });
 
-    this.game.scale.on("orientationchange", function (orientation: any) {
+    this.game.scale.on("orientationchange", (orientation: any) => {
       if (orientation === Phaser.Scale.PORTRAIT) {
         console.log("portrait");
         orientation = Phaser.Scale.LANDSCAPE;
       } else if (orientation === Phaser.Scale.LANDSCAPE) {
         console.log("landscape");
+        this.scale.startFullscreen();
       }
     });
 
